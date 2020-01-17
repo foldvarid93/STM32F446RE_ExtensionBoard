@@ -1,0 +1,21 @@
+----------------------------------------------------------------------------------------------------------------------------------
+NCDrill File Report For: S6D01D4NucleoExtensionBoard1.PcbDoc   2019. 06. 24.  22:11:36
+----------------------------------------------------------------------------------------------------------------------------------
+
+Layer Pair : Top Layer to Bottom Layer
+ASCII Plated RoundHoles File : S6D01D4NucleoExtensionBoard-Plated.TXT
+EIA File   : S6D01D4NucleoExtensionBoard.DRL
+
+Tool       Hole Size               Hole Tolerance               Hole Type       Hole Count   Plated         Tool Travel
+----------------------------------------------------------------------------------------------------------------------------------
+T1      0.5mm (20mil)                                             Round             95        PTH        869.99mm (34.25inch)
+T2      1mm (39mil)                                               Round             5         PTH        34.00mm (1.34inch)
+T3      1.1mm (43mil)                                             Round             105       PTH        559.46mm (22.03inch)
+T4      1.2mm (47mil)                                             Round             6         PTH        215.26mm (8.47inch)
+T5      2.5mm (98mil)                                             Round             2         PTH        13.20mm (0.52inch)
+T6      3mm (118mil)                                              Round             3         PTH        11.58mm (0.46inch)
+T7      3.5mm (138mil)                                            Round             4         PTH        307.28mm (12.10inch)
+----------------------------------------------------------------------------------------------------------------------------------
+Totals                                                                              220
+
+Total Processing Time (hh:mm:ss) : 00:00:00

@@ -1,0 +1,19 @@
+Output: Gerber Files
+Type  : Gerber
+From  : PCB Document [S6D01D4NucleoExtensionBoard1.PcbDoc]
+   Generated File[S6D01D4NucleoExtensionBoard.GTL]
+   Generated File[S6D01D4NucleoExtensionBoard.GBL]
+   Generated File[S6D01D4NucleoExtensionBoard.GTO]
+   Generated File[S6D01D4NucleoExtensionBoard.GTS]
+   Generated File[S6D01D4NucleoExtensionBoard.GBS]
+   Generated File[S6D01D4NucleoExtensionBoard.GBO]
+   Generated File[S6D01D4NucleoExtensionBoard.GM2]
+   Generated File[S6D01D4NucleoExtensionBoard.RUL]
+   Generated File[S6D01D4NucleoExtensionBoard.EXTREP]
+   Generated File[S6D01D4NucleoExtensionBoard.REP]
+
+
+Files Generated   : 10
+Documents Printed : 0
+
+Finished Output Generation At 22:11:37 On 2019. 06. 24.

@@ -1,0 +1,9 @@
+DRC Rules Export File for PCB: D:\PCB\ALTIUM\S6D01D4NucleoExtensionBoard\S6D01D4NucleoExtensionBoard1.PcbDoc
+RuleKind=MinimumAnnularRing|RuleName=ViaOutsideLayers_small|Scope=Board|Minimum=8.86
+RuleKind=MinimumAnnularRing|RuleName=ViaOutsideLayers_large|Scope=Board|Minimum=9.84
+RuleKind=MinimumAnnularRing|RuleName=PadOutsideLayers_small|Scope=Board|Minimum=8.86
+RuleKind=MinimumAnnularRing|RuleName=PadOutsideLayers_large|Scope=Board|Minimum=9.84
+RuleKind=ShortCircuit|RuleName=ShortCircuit|Scope=Board|Allowed=0
+RuleKind=SolderMaskExpansion|RuleName=SolderMaskExpansion|Scope=Board|Minimum=0.00
+RuleKind=Width|RuleName=Width|Scope=Board|Minimum=5.91
+RuleKind=Clearance|RuleName=Clearance|Scope=Board|Minimum=5.00

@@ -1,0 +1,159 @@
+#include "DIALOG.h"
+#include <stdio.h>
+#include "ExtensionBoard.h"
+/*********************************************************************
+ *
+ *       Externals
+ *
+ **********************************************************************
+ */
+
+/*********************************************************************
+ *
+ *       Defines
+ *
+ **********************************************************************
+ */
+#define ID_WINDOW_0    (GUI_ID_USER + 0x00)
+#define ID_TEXT_0    (GUI_ID_USER + 0x01)
+
+/*********************************************************************
+ *
+ *       Static data
+ *
+ **********************************************************************
+ */
+char str[1000];
+extern MPU6050 mpu1;
+/*********************************************************************
+ *
+ *       _aDialogCreate
+ */
+static const GUI_WIDGET_CREATE_INFO _aDialogCreate[] =
+{
+		{ WINDOW_CreateIndirect, "Window", ID_WINDOW_0, 0, 0, 400, 240, 0, 0x0,0 },
+		{ TEXT_CreateIndirect, "Text", ID_TEXT_0, 0, 0, 400,100, 0, 0x0, 0 },
+};
+
+/*********************************************************************
+ *
+ *       Static code
+ *
+ **********************************************************************
+ */
+/*********************************************************************
+ *
+ *       _cbDialog
+ */
+static void _cbDialog(WM_MESSAGE * pMsg) {
+	WM_HWIN hItem;
+
+	switch (pMsg->MsgId) {
+	case WM_INIT_DIALOG:
+		//
+		// Initialization of 'Text_P'
+		//
+		GUI_SetBkColor(GUI_BLACK);
+		hItem = WM_GetDialogItem(pMsg->hWin, ID_TEXT_0);
+		//TEXT_SetTextColor(hItem,GUI_WHITE);
+		//TEXT_SetBkColor(hItem,GUI_BLACK);
+		//TEXT_SetTextAlign(hItem, GUI_TA_LEFT | GUI_TA_TOP);
+		break;
+	case WM_PAINT:
+		//GUI_SetBkColor(GUI_BLACK);
+		hItem = WM_GetDialogItem(pMsg->hWin, ID_TEXT_0);
+		//TEXT_SetTextColor(hItem,GUI_WHITE);
+		//TEXT_SetBkColor(hItem,GUI_BLACK);
+		TEXT_SetText(hItem, str);
+		
+		break;
+	default:
+		WM_DefaultProc(pMsg);
+		break;
+	}
+}
+
+/*********************************************************************
+ *
+ *       _cbBk
+ */
+static void _cbBk(WM_MESSAGE * pMsg) {
+	switch (pMsg->MsgId) {
+	case WM_PAINT:
+		GUI_SetBkColor(GUI_BLACK);
+		GUI_Clear();//LcdClear(0xFFFF);//
+		break;
+	default:
+		WM_DefaultProc(pMsg);
+		break;
+	}
+}
+
+/*********************************************************************
+ *
+ *       Public code
+ *
+ **********************************************************************
+ */
+/*********************************************************************
+ *
+ *       MainTask
+ */
+void MainTask(void) {
+	WM_HWIN hDialog;
+	WM_HWIN hText;
+
+
+	float LM75Temp;
+	float BME280Temp;
+	float BME280Humidity;
+	float BME280Pressure;
+	uint32_t TEMT6000;
+
+	GUI_Init();
+	WM_SetCallback(WM_HBKWIN, _cbBk);
+	hDialog = GUI_CreateDialogBox(_aDialogCreate, GUI_COUNTOF(_aDialogCreate),_cbDialog, WM_HBKWIN, 0, 0);
+	hText = WM_GetDialogItem(hDialog, ID_TEXT_0);
+	WM_EnableMemdev(hDialog);
+	while (1) {
+		//sprintf(acBuffer, "%i", Value++);
+		//TEXT_SetText(hText_c1, acBuffer);
+		//Value = (Value == 1000) ? 0 : Value;
+
+		//LM75
+		LM75Temp=ReadLM75();
+		//BME280
+		BME280Temp = BME280_ReadTemperature();
+		BME280Humidity=BME280_ReadHumidity();
+		BME280Pressure=BME280_ReadPressure();
+		//MPU6050
+		MPU6050_ReadTemperature(&mpu1);
+		MPU6050_ReadAll(&mpu1);
+		//On chip temp sensor
+		//TODO
+		//TEMT6000 LightSensor
+		if (HAL_ADC_PollForConversion(&hadc1, 1000000) == HAL_OK){//analog read
+			TEMT6000 = HAL_ADC_GetValue(&hadc1);
+		}
+		//Write to display
+		sprintf(str, "LM75 Temp=%.1f °C\r\n"
+				"BME280: Temp=%.2f °C, Humidity=%.2f, Pressure=%.2f\r\n"
+				"MPU6050 Accelerometer: X=%d, Y=%d, Z=%d\r\n"
+				"MPU6050 Temp=%.2f °C\r\n"
+				"MPU6050 Gyroscope: X=%d, Y=%d, Z=%d\r\n"
+				"TEMT6000 LightSensor ADC=%u\r\n"
+				,LM75Temp
+				,BME280Temp,BME280Humidity,BME280Pressure / 1000
+				,mpu1.Accelerometer_X,mpu1.Accelerometer_Y, mpu1.Accelerometer_Z
+				, mpu1.Temperature
+				,mpu1.Gyroscope_X, mpu1.Gyroscope_Y, mpu1.Gyroscope_Z
+				,(uint16_t) TEMT6000
+				);
+		//TEXT_SetText(hText, str);
+		WM_InvalidateWindow(hDialog);
+		GUI_Exec();
+		GUI_Delay(200);
+	}
+}
+
+/*************************** End of file ****************************/
