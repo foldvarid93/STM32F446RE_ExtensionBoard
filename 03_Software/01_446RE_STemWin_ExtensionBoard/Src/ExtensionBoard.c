@@ -36,7 +36,10 @@ void BoardInit(void){
 	//init operational amplifier analog input
 
 	//Uart
+	MX_USART2_UART_Init();//PC UART
+	MX_USART3_UART_Init();//ESP8266UART
 	//init esp8266
+	ESP_Init("S9","12345678");
 }
 /*********************************************************************/
 //Timer

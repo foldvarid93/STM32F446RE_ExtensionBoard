@@ -7,10 +7,13 @@
 #include "tim.h"
 #include "crc.h"
 #include "adc.h"
+#include "usart.h"
 #include "GUI.h"
 #include "S6D04D1.h"
 #include "BME280.h"
 #include "MPU6050.h"
+#include "ESP8266_HAL.h"
+#include "UartRingbuffer_multi.h"
 #include "stm32f4xx_hal.h"
 #include <string.h>
 /*********************************************************************/
