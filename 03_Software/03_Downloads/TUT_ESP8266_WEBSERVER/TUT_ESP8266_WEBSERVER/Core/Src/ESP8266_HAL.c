@@ -11,10 +11,10 @@
 #include "stdio.h"
 #include "string.h"
 
-extern UART_HandleTypeDef huart3;
+extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart2;
 
-#define wifi_uart &huart3
+#define wifi_uart &huart1
 #define pc_uart &huart2
 
 
@@ -48,7 +48,6 @@ void ESP_Init (char *SSID, char *PASSWD)
 	char data[80];
 
 	Ringbuf_init();
-	Uart_sendstring("AT\r\n", wifi_uart);
 
 	Uart_sendstring("AT+RST\r\n", wifi_uart);
 	Uart_sendstring("RESETTING.", pc_uart);
@@ -60,15 +59,13 @@ void ESP_Init (char *SSID, char *PASSWD)
 
 	/********* AT **********/
 	Uart_sendstring("AT\r\n", wifi_uart);
-	//while(!(Wait_for("AT\r\r\n\r\nOK\r\n", wifi_uart)));
-	while(!(Wait_for("OK\r\n", wifi_uart)));
+	while(!(Wait_for("AT\r\r\n\r\nOK\r\n", wifi_uart)));
 	Uart_sendstring("AT---->OK\n\n", pc_uart);
 
 
 	/********* AT+CWMODE=1 **********/
 	Uart_sendstring("AT+CWMODE=1\r\n", wifi_uart);
-	while (!(Wait_for("AT+CWMODE=1\r\n\r\nbusy p...\r\n\r\nOK\r\n", wifi_uart)));
-	//while (!(Wait_for("AT+CWMODE=1\r\r\n\r\nOK\r\n", wifi_uart)));
+	while (!(Wait_for("AT+CWMODE=1\r\r\n\r\nOK\r\n", wifi_uart)));
 	Uart_sendstring("CW MODE---->1\n\n", pc_uart);
 
 
@@ -93,8 +90,7 @@ void ESP_Init (char *SSID, char *PASSWD)
 
 
 	Uart_sendstring("AT+CIPMUX=1\r\n", wifi_uart);
-	while (!(Wait_for("AT+CIPMUX=1\r\n\r\nOK\r\n", wifi_uart)));
-	//while (!(Wait_for("AT+CIPMUX=1\r\r\n\r\nOK\r\n", wifi_uart)));
+	while (!(Wait_for("AT+CIPMUX=1\r\r\n\r\nOK\r\n", wifi_uart)));
 	Uart_sendstring("CIPMUX---->OK\n\n", pc_uart);
 
 	Uart_sendstring("AT+CIPSERVER=1,80\r\n", wifi_uart);

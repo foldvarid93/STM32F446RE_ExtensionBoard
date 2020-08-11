@@ -8,6 +8,7 @@
 #include "crc.h"
 #include "adc.h"
 #include "usart.h"
+#include "gpio.h"
 #include "GUI.h"
 #include "S6D04D1.h"
 #include "BME280.h"

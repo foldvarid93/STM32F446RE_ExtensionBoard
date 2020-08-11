@@ -13,6 +13,8 @@ MPU6050 mpu1;
 //board initialization
 /*********************************************************************/
 void BoardInit(void){
+	//Gpio
+	MX_GPIO_Init();
 	//Timer
 	InitEncoder();//initialize encoder input and timer
 	InitPWM();//LCD backlight and H-bridge PWM init
@@ -26,8 +28,8 @@ void BoardInit(void){
 
 	//LCD
 	MX_CRC_Init();//need for GUI
-	//GUI_Init();//init gui
-	//GUI_Clear();//clear screen
+	GUI_Init();//init gui
+	GUI_Clear();//clear screen
 	SetBackLightPWM(100);//Backlight PWM max
 	//Analog
 	MX_ADC1_Init();//Init all analog inputs
@@ -39,7 +41,9 @@ void BoardInit(void){
 	MX_USART2_UART_Init();//PC UART
 	MX_USART3_UART_Init();//ESP8266UART
 	//init esp8266
-	ESP_Init("S9","12345678");
+	HAL_GPIO_WritePin(RST_GPIO_Port, RST_Pin, GPIO_PIN_SET);
+	ESP_Init("foldvarid93","19701971");
+	Server_Start();
 }
 /*********************************************************************/
 //Timer
