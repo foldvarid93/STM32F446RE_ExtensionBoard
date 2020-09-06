@@ -1,11 +1,11 @@
 #ifndef _REMOTEXY_SERIAL_H_
 #define _REMOTEXY_SERIAL_H_
 
-#include "RemoteXY_API.h"
+#include <RemoteXY_API.h>
 
-class CRemoteXY_Serial : public CRemoteXY_API {
+/*class CRemoteXY_Serial : public CRemoteXY_API {
 
-public:
+public:*/
 
 #if defined(REMOTEXY_PORT__HARDSERIAL)
   HardwareSerial * serial;
@@ -28,6 +28,6 @@ public:
     }
   #endif
 #endif
-};
+//};
 
 #endif //_REMOTEXY_SERIAL_H_

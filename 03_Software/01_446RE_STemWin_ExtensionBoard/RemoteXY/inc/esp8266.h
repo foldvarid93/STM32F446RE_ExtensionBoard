@@ -2,49 +2,49 @@
 #define _REMOTEXY_MOD_ESP8266_H_
 
 #include "RemoteXY_AT.h"
+#include "RemoteXY.h"
 
 #define REMOTEXY_ESP8266_MAX_SEND_BYTES 2048
 #define REMOTEXY_ESP8266_MODULETEST_TIMEOUT 30000
 
-class CRemoteXY : public CRemoteXY_AT {
+
+extern CRemoteXY cremotexy;
+/*class CRemoteXY : public CRemoteXY_AT {
 
 protected:
   char * wifiSsid;
   char * wifiPassword;
   uint16_t port;
-  char connectCannel;
-  uint16_t connectAvailable;
-  uint16_t freeAvailable;
+  char cremotexy.connectCannel;
+  uint16_t cremotexy.connectAvailable;
+  uint16_t cremotexy.freeAvailable;
 
   uint16_t sendBytesAvailable;  
   uint16_t sendBytesLater;
   
-  uint32_t moduleTestTimeout;
+  uint32_t cremotexy.moduleTestTimeout;
 
-public:
+public:*/
 
-#if defined(REMOTEXY_PORT__HARDSERIAL)
-  CRemoteXY (const void * _conf, void * _var, const char * _accessPassword, HardwareSerial * _serial, long _serialSpeed, const char * _wifiSsid, const char * _wifiPassword, uint16_t _port) {
-    initSerial (_serial, _serialSpeed);
-#elif defined(REMOTEXY_PORT__SOFTSERIAL)
-  CRemoteXY (const void * _conf, void * _var, const char * _accessPassword, uint8_t _serialRx, uint8_t _serialTx, long _serialSpeed, const char * _wifiSsid, const char * _wifiPassword, uint16_t _port) {
-    initSerial (_serialRx, _serialTx, _serialSpeed);
-#endif
+
+CRemoteXY_Init (const void * _conf, void * _var, const char * _accessPassword, HardwareSerial * _serial, long _serialSpeed, const char * _wifiSsid, const char * _wifiPassword, uint16_t _port)
+{
+    //initSerial (_serial, _serialSpeed);
     initAT ();
-    wifiSsid = (char *) _wifiSsid;
-    wifiPassword = (char *) _wifiPassword;
-    port = _port;
-    connectCannel=0;
-    connectAvailable=0;
-    freeAvailable=0;
-    sendBytesAvailable=0;
-    sendBytesLater=0;
+    cremotexy.wifiSsid = (char *) _wifiSsid;
+    cremotexy.wifiPassword = (char *) _wifiPassword;
+    cremotexy.port = _port;
+    cremotexy.connectCannel=0;
+    cremotexy.connectAvailable=0;
+    cremotexy.freeAvailable=0;
+    cremotexy.sendBytesAvailable=0;
+    cremotexy.sendBytesLater=0;
     init (_conf, _var, _accessPassword);
-    moduleTestTimeout = millis ();
+    cremotexy.moduleTestTimeout = millis ();
   }
 
 
-  protected:
+  //protected:
   uint8_t initModule () {
     
 #if defined(REMOTEXY__DEBUGLOGS)
@@ -67,17 +67,17 @@ public:
     if (!waitATAnswer (AT_ANSWER_OK, 1000)) return 0; 
     if (!waitATAnswer (AT_MESSAGE_READY, 5000)) return 0;
      
-    return setModule (); 
+    return setModule();
   }
   
-  uint8_t setModule () {    
+  uint8_t setModule (void) {
     char sport[6];    
-    rxy_itos (port, sport);
+    rxy_itos (cremotexy.port, sport);
     char stimeout[6];
     rxy_itos (REMOTEXY_SERVER_TIMEOUT/1000, stimeout); 
     
-    connectCannel=0;
-    connectAvailable=0;
+    cremotexy.connectCannel=0;
+    cremotexy.connectAvailable=0;
     
     sendATCommand ("ATE0",0);
     if (!waitATAnswer (AT_ANSWER_OK, 1000)) return 0;   
@@ -86,8 +86,8 @@ public:
     if (!waitATAnswer (AT_ANSWER_OK, 2000)) return 0;   
     sendATCommand ("AT+CWDHCP=0,1",0);
     if (!waitATAnswer (AT_ANSWER_OK, 2000)) return 0;    
-    char crypt[2] = {*wifiPassword?'4':'0',0};
-    sendATCommand ("AT+CWSAP=\"",wifiSsid,"\",\"",wifiPassword,"\",10,",crypt,0);
+    char crypt[2] = {*cremotexy.wifiPassword?'4':'0',0};
+    sendATCommand ("AT+CWSAP=\"",cremotexy.wifiSsid,"\",\"",cremotexy.wifiPassword,"\",10,",crypt,0);
     if (!waitATAnswer (AT_ANSWER_OK, 5000)) return 0;  
 #else
     sendATCommand ("AT+CWMODE=1",0);
@@ -111,7 +111,7 @@ public:
     if (!waitATAnswer (AT_ANSWER_OK, 1000)) return 0; 
     sendATCommand ("AT+CIPSTO=",stimeout,0);
     if (!waitATAnswer (AT_ANSWER_OK, 1000)) return 0; 
-    moduleTestTimeout = millis ();
+    cremotexy.moduleTestTimeout = millis ();
     return 1;
   }
 
@@ -120,20 +120,20 @@ public:
   void handlerModule () {
        
     while (serial->available ()>0) {      
-      if (connectAvailable) break;
-      if (freeAvailable) {
+      if (cremotexy.connectAvailable) break;
+      if (cremotexy.freeAvailable) {
         serial->read ();
-        freeAvailable--;
+        cremotexy.freeAvailable--;
       }
       else {     
         readATMessage ();
       }
-      moduleTestTimeout = millis ();
+      cremotexy.moduleTestTimeout = millis ();
     }
     
     
-    if (millis() - moduleTestTimeout > REMOTEXY_ESP8266_MODULETEST_TIMEOUT) {
-      moduleTestTimeout = millis ();
+    if (millis() - cremotexy.moduleTestTimeout > REMOTEXY_ESP8266_MODULETEST_TIMEOUT) {
+      cremotexy.moduleTestTimeout = millis ();
       if (testATecho ()==2) setModule ();
     }  
     
@@ -146,53 +146,53 @@ public:
 
   //override AT
   void connectAT () {
-    if (connectCannel==0) {
-      connectCannel=*(params[0]);
-      connectAvailable=0;
+    if (cremotexy.connectCannel==0) {
+      cremotexy.connectCannel=*(cremotexy.params[0]);
+      cremotexy.connectAvailable=0;
     }
   };
  
   //override AT
   void closedAT () {
-    if (connectCannel==*(params[0])) connectCannel=0;
+    if (cremotexy.connectCannel==*(cremotexy.params[0])) cremotexy.connectCannel=0;
   }
   
   //override AT
   void inputDataAT () {
     uint16_t size;
     size=getATParamInt (1);
-    if (connectCannel==*(params[0])) connectAvailable=size; 
-    else freeAvailable = size;
+    if (cremotexy.connectCannel==*(cremotexy.params[0])) cremotexy.connectAvailable=size;
+    else cremotexy.freeAvailable = size;
   }
   
   
   void sendStart (uint16_t len) {
     char s[8];
-    if (connectCannel) {
-      sendBytesLater=0;
+    if (cremotexy.connectCannel) {
+    	cremotexy.sendBytesLater=0;
       if (len>REMOTEXY_ESP8266_MAX_SEND_BYTES) {
-        sendBytesLater=len-REMOTEXY_ESP8266_MAX_SEND_BYTES;
+    	  cremotexy.sendBytesLater=len-REMOTEXY_ESP8266_MAX_SEND_BYTES;
         len=REMOTEXY_ESP8266_MAX_SEND_BYTES;
       }
-      sendBytesAvailable=len;
+      cremotexy.sendBytesAvailable=len;
       rxy_itos (len, s+2);
-      *s=connectCannel;
+      *s=cremotexy.connectCannel;
       *(s+1)=',';      
       sendATCommand ("AT+CIPSEND=",s,0);
-      if (!waitATAnswer (AT_ANSWER_GO, 1000)) sendBytesAvailable=0;
+      if (!waitATAnswer (AT_ANSWER_GO, 1000)) cremotexy.sendBytesAvailable=0;
     }
   }
   
   void sendByte (uint8_t b) {
-    if (sendBytesAvailable) {
+    if (cremotexy.sendBytesAvailable) {
       serial->write (b); 
 #if defined(REMOTEXY__DEBUGLOGS)
         DEBUGLOGS_writeOutputHex (b);
 #endif
-      sendBytesAvailable--;
-      if (!sendBytesAvailable) {
+        cremotexy.sendBytesAvailable--;
+      if (!cremotexy.sendBytesAvailable) {
         waitATAnswer (AT_ANSWER_SEND_OK, 1000);      
-        if (sendBytesLater) sendStart (sendBytesLater); 
+        if (cremotexy.sendBytesLater) sendStart (cremotexy.sendBytesLater);
       }
     }
   }
@@ -200,9 +200,9 @@ public:
   
   uint8_t receiveByte () {
     uint8_t b;
-    if (connectAvailable) {
+    if (cremotexy.connectAvailable) {
       if (serial->available ()>0) {
-        connectAvailable--;
+        cremotexy.connectAvailable--;
         b = serial->read  ();
 #if defined(REMOTEXY__DEBUGLOGS)
         DEBUGLOGS_writeInputHex (b);
@@ -214,20 +214,20 @@ public:
   }
   
   uint8_t availableByte () {
-    if (connectAvailable) {
+    if (cremotexy.connectAvailable) {
       return serial->available ()>0;
     }
     return 0;
   }  
 
 
-};
+//};
 
 
 
 
 #if defined(REMOTEXY_PORT__HARDSERIAL)
-  #define RemoteXY_Init() remotexy = new CRemoteXY (RemoteXY_CONF_PROGMEM, &RemoteXY, REMOTEXY_ACCESS_PASSWORD, &REMOTEXY_SERIAL, REMOTEXY_SERIAL_SPEED, REMOTEXY_WIFI_SSID, REMOTEXY_WIFI_PASSWORD, REMOTEXY_SERVER_PORT)
+ // #define RemoteXY_Init() remotexy = CRemoteXY_Init (RemoteXY_CONF_PROGMEM, &RemoteXY, REMOTEXY_ACCESS_PASSWORD, &REMOTEXY_SERIAL, REMOTEXY_SERIAL_SPEED, REMOTEXY_WIFI_SSID, REMOTEXY_WIFI_PASSWORD, REMOTEXY_SERVER_PORT)
 #elif defined(REMOTEXY_PORT__SOFTSERIAL)
   #define RemoteXY_Init() remotexy = new CRemoteXY (RemoteXY_CONF_PROGMEM, &RemoteXY, REMOTEXY_ACCESS_PASSWORD, REMOTEXY_SERIAL_RX, REMOTEXY_SERIAL_TX, REMOTEXY_SERIAL_SPEED, REMOTEXY_WIFI_SSID, REMOTEXY_WIFI_PASSWORD, REMOTEXY_SERVER_PORT)
 #endif

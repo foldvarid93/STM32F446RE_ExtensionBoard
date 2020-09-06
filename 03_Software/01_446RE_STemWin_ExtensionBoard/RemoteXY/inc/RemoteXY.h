@@ -92,6 +92,7 @@
 
 //#define REMOTEXY__DEBUGLOGS Serial
 #define REMOTEXY__DEBUGLOGS_SPEED 115200
+#define REMOTEXY_MODE__HARDSERIAL_ESP8266_POINT
 
 
 #if defined(REMOTEXY_MODE__HARDSERIAL) || defined(REMOTEXY_MODE__SERIAL) || defined(REMOTEXY_MODE__HC05_HARDSERIAL) 
@@ -150,12 +151,12 @@
 #elif defined(REMOTEXY_MODE__ESP32CORE_BLUETOOTH)
   #define REMOTEXY_MOD__ESP32CORE_BLUETOOTH
 #else
-  #error RemoteXY mode does not defined or defined error: REMOTEXY_MODE__XXXXXXX 
+  //#error RemoteXY mode does not defined or defined error: REMOTEXY_MODE__XXXXXXX
 #endif
 
 
 #include <inttypes.h> 
-#include "classes/RemoteXY_Lib.h"
+#include "RemoteXY_Lib.h"
 
 /*
 #if defined(REMOTEXY_PORT__HARDSERIAL) || defined(REMOTEXY__DEBUGLOGS)
@@ -167,7 +168,7 @@
 #if defined(REMOTEXY_MOD__SERIAL) 
   #include "modules/serial.h" 
 #elif defined(REMOTEXY_MOD__ESP8266)
-  #include "modules/esp8266.h" 
+  #include "esp8266.h"
 #elif defined(REMOTEXY_MOD__ESP8266_CLOUD)
   #include "modules/esp8266_cloud.h" 
 #elif defined(REMOTEXY_MOD__ETHERNET)
@@ -190,15 +191,16 @@
 #define REMOTEXY_ACCESS_PASSWORD ""
 #endif 
 
-CRemoteXY *remotexy;   
+//extern CRemoteXY cremotexy;
 
-#define RemoteXY_Handler() remotexy->handler ()
-#define RemoteXY_CONF const PROGMEM RemoteXY_CONF_PROGMEM
+//#define RemoteXY_Handler() remotexy->handler ()
+//#define RemoteXY_CONF const PROGMEM RemoteXY_CONF_PROGMEM
 
 //API
-#define RemoteXY_isConnected() remotexy->isConnected ()
-#define RemoteXY_sendInputVariables() remotexy->sendInputVariables ()
-#define RemoteXY_didSendInputVariables() remotexy->didSendInputVariables ()
+//#define RemoteXY_isConnected() remotexy->isConnected ()
+//#define RemoteXY_sendInputVariables() remotexy->sendInputVariables ()
+//#define RemoteXY_didSendInputVariables() remotexy->didSendInputVariables ()
+
 
 
 #endif //_REMOTEXY_H_
