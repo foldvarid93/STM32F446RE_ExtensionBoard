@@ -9,6 +9,7 @@
 //global variables
 /*********************************************************************/
 MPU6050 mpu1;
+uint8_t u;
 /*********************************************************************/
 //board initialization
 /*********************************************************************/
@@ -44,6 +45,11 @@ void BoardInit(void){
 	HAL_GPIO_WritePin(RST_GPIO_Port, RST_Pin, GPIO_PIN_SET);
 	ESP_Init("foldvarid93","19701971");
 	Server_Start();
+	//
+	RemoteXY_Init();
+	while(1){
+		//RemoteXY_Handler();
+	}
 }
 /*********************************************************************/
 //Timer
