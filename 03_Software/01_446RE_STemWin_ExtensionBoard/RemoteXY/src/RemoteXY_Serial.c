@@ -8,11 +8,10 @@
 public:*/
 
 #if defined(REMOTEXY_PORT__HARDSERIAL)
-  //HardwareSerial * serial;
-  void initSerial ()//HardwareSerial * _serial, long _serialSpeed) {
-  {
-	  //serial = _serial;
-    //serial->begin (_serialSpeed);
+  HardwareSerial * serial;
+  void initSerial (HardwareSerial * _serial, long _serialSpeed) {
+    serial = _serial;
+    serial->begin (_serialSpeed);
   }
 #elif defined(REMOTEXY_PORT__SOFTSERIAL)
   #if defined(SoftwareSerial_h)
