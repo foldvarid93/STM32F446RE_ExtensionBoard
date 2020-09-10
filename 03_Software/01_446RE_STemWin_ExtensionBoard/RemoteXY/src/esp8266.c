@@ -2,27 +2,14 @@
 
 
 extern CRemoteXY cremotexy;
-/*class CRemoteXY : public CRemoteXY_AT {
-
-protected:
-  char * wifiSsid;
-  char * wifiPassword;
-  uint16_t port;
-  char cremotexy.connectCannel;
-  uint16_t cremotexy.connectAvailable;
-  uint16_t cremotexy.freeAvailable;
-
-  uint16_t sendBytesAvailable;  
-  uint16_t sendBytesLater;
-  
-  uint32_t cremotexy.moduleTestTimeout;
-
-public:*/
 
 
-void CRemoteXY_Init (const void * _conf, void * _var, const char * _accessPassword, HardwareSerial * _serial, long _serialSpeed, const char * _wifiSsid, const char * _wifiPassword, uint16_t _port)
+extern const char * AT_ANSWER_GO;
+
+
+void CRemoteXY_Init (const void * _conf, void * _var, const char * _accessPassword, const char * _wifiSsid, const char * _wifiPassword, uint16_t _port)
 {
-    initSerial ();//_serial, _serialSpeed);
+    initSerial();//_serial, _serialSpeed);
     initAT ();
     cremotexy.wifiSsid = (char *) _wifiSsid;
     cremotexy.wifiPassword = (char *) _wifiPassword;
@@ -115,7 +102,8 @@ void CRemoteXY_Init (const void * _conf, void * _var, const char * _accessPasswo
     while (serial->available ()>0) {      
       if (cremotexy.connectAvailable) break;
       if (cremotexy.freeAvailable) {
-        serial->read ();
+
+    	  HAL_StatusTypeDef HAL_UART_Receive(huart3, uint8_t *pData, uint16_t Size, uint32_t Timeout);//serial->read ();
         cremotexy.freeAvailable--;
       }
       else {     
@@ -178,7 +166,7 @@ void CRemoteXY_Init (const void * _conf, void * _var, const char * _accessPasswo
   
   void sendByte (uint8_t b) {
     if (cremotexy.sendBytesAvailable) {
-      serial->write (b); 
+      //serial->write (b);
 #if defined(REMOTEXY__DEBUGLOGS)
         DEBUGLOGS_writeOutputHex (b);
 #endif
@@ -216,7 +204,7 @@ void CRemoteXY_Init (const void * _conf, void * _var, const char * _accessPasswo
 
 
 #if defined(REMOTEXY_PORT__HARDSERIAL)
- // #define RemoteXY_Init() remotexy = CRemoteXY_Init (RemoteXY_CONF_PROGMEM, &RemoteXY, REMOTEXY_ACCESS_PASSWORD, &REMOTEXY_SERIAL, REMOTEXY_SERIAL_SPEED, REMOTEXY_WIFI_SSID, REMOTEXY_WIFI_PASSWORD, REMOTEXY_SERVER_PORT)
+  #define RemoteXY_Init() CRemoteXY_Init (RemoteXY_CONF_PROGMEM, &RemoteXY, REMOTEXY_ACCESS_PASSWORD, REMOTEXY_WIFI_SSID, REMOTEXY_WIFI_PASSWORD, REMOTEXY_SERVER_PORT)
 #elif defined(REMOTEXY_PORT__SOFTSERIAL)
   #define RemoteXY_Init() remotexy = new CRemoteXY (RemoteXY_CONF_PROGMEM, &RemoteXY, REMOTEXY_ACCESS_PASSWORD, REMOTEXY_SERIAL_RX, REMOTEXY_SERIAL_TX, REMOTEXY_SERIAL_SPEED, REMOTEXY_WIFI_SSID, REMOTEXY_WIFI_PASSWORD, REMOTEXY_SERVER_PORT)
 #endif

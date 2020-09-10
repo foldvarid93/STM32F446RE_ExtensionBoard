@@ -1,6 +1,3 @@
-#ifndef _REMOTEXY_API_H_
-#define _REMOTEXY_API_H_
-
 #include <inttypes.h> 
 #include <stdlib.h>
 #include "RemoteXY.h"
@@ -14,22 +11,22 @@ void init (const void * _conf, void * _var, const char * _accessPassword) {
     uint8_t* p = (uint8_t*)_conf;
     uint8_t b = getConfByte (p++);
     if (b==0xff) {
-      inputLength = getConfByte (p++);
-      inputLength |= getConfByte (p++)<<8;
-      outputLength = getConfByte (p++);
-      outputLength |= getConfByte (p++)<<8;
+    	cremotexy.inputLength = getConfByte (p++);
+    	cremotexy.inputLength |= getConfByte (p++)<<8;
+    	cremotexy.outputLength = getConfByte (p++);
+    	cremotexy.outputLength |= getConfByte (p++)<<8;
     }
     else {
-      inputLength = b;
-      outputLength = getConfByte (p++);    
+    	cremotexy.inputLength = b;
+    	cremotexy.outputLength = getConfByte (p++);
     }
-    confLength = getConfByte (p++);
-    confLength |= getConfByte (p++)<<8;
-    conf = p;
-    confVersion = getConfByte (p);
-    var = (uint8_t*)_var;
-    uint16_t varLength = outputLength+inputLength;
-    connect_flag = var+varLength;
+    cremotexy.confLength = getConfByte (p++);
+    cremotexy.confLength |= getConfByte (p++)<<8;
+    cremotexy.conf = p;
+    cremotexy.confVersion = getConfByte (p);
+    cremotexy.var = (uint8_t*)_var;
+    uint16_t varLength = cremotexy.outputLength+cremotexy.inputLength;
+    cremotexy.connect_flag = cremotexy.var+varLength;
     *connect_flag = 0;   
         
     cremotexy.accessPassword = (uint8_t*)_accessPassword;
@@ -302,9 +299,3 @@ void init (const void * _conf, void * _var, const char * _accessPassword) {
     if (inputVarNeedSend==0) return 1;
     else return 0;
   }
-
-   
-//};
-
-#endif //_REMOTEXY_API_H_
-

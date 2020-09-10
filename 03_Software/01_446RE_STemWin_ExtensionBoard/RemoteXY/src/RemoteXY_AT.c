@@ -8,8 +8,6 @@
 #include "RemoteXY_Serial.c"
 #include "RemoteXY_AT.h"
 
-
-
 const char * AT_ANSWER_ERROR = "ERROR";
 const char * AT_ANSWER_OK = "OK";
 const char * AT_ANSWER_SEND_OK = "SEND OK";
@@ -22,6 +20,7 @@ const char * AT_MESSAGE_CONNECT_FAIL = "?,CONNECT FAIL";
 const char * AT_MESSAGE_IPD = "+IPD,?,*:";
 
 extern CRemoteXY cremotexy;
+extern
 
 /*class CRemoteXY_AT : public CRemoteXY_Serial {
   
@@ -47,7 +46,12 @@ extern CRemoteXY cremotexy;
    
     char *p = (char*) command;
     va_list argptr;
-    while (serial->available () > 0) serial->read (); 
+    while (
+    		//serial->available () > 0
+			)
+    	{
+    	//serial->read ()
+    	};
     va_start (argptr, command);
     while (p) {
       serial->write (p);
@@ -112,7 +116,10 @@ extern CRemoteXY cremotexy;
 //  protected:
   void readATMessage () {
     uint8_t b;
-    while (serial->available ()>0) {
+    while (
+    		1//serial->available ()>0
+			)
+    {
       b=serial->read  ();
       if (b==10) continue;
 #if defined(REMOTEXY__DEBUGLOGS)
