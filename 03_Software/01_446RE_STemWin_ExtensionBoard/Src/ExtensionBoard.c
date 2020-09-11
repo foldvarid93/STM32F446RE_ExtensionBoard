@@ -10,17 +10,6 @@
 /*********************************************************************/
 MPU6050 mpu1;
 uint8_t u;
-struct {
-
-    // input variables
-  uint8_t button_1; // =1 if button pressed, else =0
-  char edit_1[36];  // string UTF8 end zero
-  char edit_2[11];  // string UTF8 end zero
-
-    // other variable
-  uint8_t connect_flag;  // =1 if wire connected, else =0
-
-} RemoteXY;
 /*********************************************************************/
 //board initialization
 /*********************************************************************/
@@ -63,10 +52,10 @@ void BoardInit(void){
 	while(1){
 		RemoteXY_Handler();
 		if(RemoteXY.button_1==1){
+			Uart_sendstring("SSID: ", &huart2);
 			Uart_sendstring(strcat(RemoteXY.edit_1,"\n"), &huart2);
-		    //Serial.printf("SSID=%s",strcat(RemoteXY.edit_1,"\n"));
-		    //Serial.printf("PW=%s",strcat(RemoteXY.edit_2,"\n"));
-
+			Uart_sendstring("PASS: ", &huart2);
+			Uart_sendstring(strcat(RemoteXY.edit_2,"\n"), &huart2);
 		    RemoteXY.button_1=0;
 		}
 	}

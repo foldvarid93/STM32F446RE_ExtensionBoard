@@ -88,6 +88,7 @@
 */
 #include "remotexy.h"
 #include "UartRingbuffer_multi.h"
+
 #define REMOTEXY_WIFI__POINT
 //#define REMOTEXY__DEBUGLOGS Serial
 #define REMOTEXY__DEBUGLOGS_SPEED 115200
@@ -130,8 +131,17 @@ const char * AT_MESSAGE_IPD = "+IPD,?,*:";
 //variables
 CRemoteXY remotexy;
 
+Serial_t serial={
+		.read=NULL,
+		.write=NULL,
+		.available=NULL
+};
 extern UART_HandleTypeDef huart3;
+
 extern ring_buffer *_rx_buffer1;
+
+
+
 uint8_t RemoteXY_CONF[] =
   { 255,48,0,0,0,66,0,10,66,1,
   1,1,26,63,12,12,36,8,83,101,
@@ -140,16 +150,18 @@ uint8_t RemoteXY_CONF[] =
   101,116,119,111,114,107,0,129,0,17,
   51,28,6,8,80,97,115,115,119,111,
   114,100,0,7,4,3,42,57,7,2,
-  27,2,11 };
+  27,2,11
+ };
 
 /**********************************************************************************************************/
 void RemoteXY_Init(void)
 {
-	CRemoteXY_Init(RemoteXY_CONF, &remotexy, REMOTEXY_ACCESS_PASSWORD, REMOTEXY_WIFI_SSID, REMOTEXY_WIFI_PASSWORD, REMOTEXY_SERVER_PORT);
+	CRemoteXY_Init(RemoteXY_CONF, &RemoteXY, REMOTEXY_ACCESS_PASSWORD, REMOTEXY_WIFI_SSID, REMOTEXY_WIFI_PASSWORD, REMOTEXY_SERVER_PORT);
 }
 
 void CRemoteXY_Init(const void * _conf, void * _var, const char * _accessPassword, const char * _wifiSsid, const char * _wifiPassword, uint16_t _port)
 {
+	initSerial();
     initAT();
     remotexy.wifiSsid = (char *) _wifiSsid;
     remotexy.wifiPassword = (char *) _wifiPassword;
@@ -186,7 +198,7 @@ void CRemoteXY_Init(const void * _conf, void * _var, const char * _accessPasswor
     }
     sendATCommand ("AT+RST",0);
     if (!waitATAnswer (AT_ANSWER_OK, 1000)) return 0; 
-    //if (!waitATAnswer (AT_MESSAGE_READY, 5000)) return 0;
+    if (!waitATAnswer (AT_MESSAGE_READY, 5000)) return 0;
      
     return setModule (); 
   }
@@ -232,41 +244,35 @@ void CRemoteXY_Init(const void * _conf, void * _var, const char * _accessPasswor
     if (!waitATAnswer (AT_ANSWER_OK, 1000)) return 0; 
     sendATCommand ("AT+CIPSTO=",stimeout,0);
     if (!waitATAnswer (AT_ANSWER_OK, 1000)) return 0;
-    remotexy.moduleTestTimeout =HAL_GetTick();
+    remotexy.moduleTestTimeout = HAL_GetTick();
     return 1;
   }
 
   
     
-  void handlerModule() {
-       
-    while (IsDataAvailable(&huart3))
-    {
+  void handlerModule(void)
+  {
+    while (serial.available()>0) {
       if (remotexy.connectAvailable) break;
       if (remotexy.freeAvailable) {
-        //serial->read ();
+        serial.read();
         remotexy.freeAvailable--;
       }
       else {     
-        readATMessage ();
+        readATMessage();
       }
       remotexy.moduleTestTimeout = HAL_GetTick();
     }
-    
-    
     if (HAL_GetTick() - remotexy.moduleTestTimeout > REMOTEXY_ESP8266_MODULETEST_TIMEOUT) {
       remotexy.moduleTestTimeout = HAL_GetTick();
       if (testATecho ()==2) setModule ();
     }  
-    
   }
  
-  //override AT
   void readyAT () {
     setModule ();
   }
 
-  //override AT
   void connectAT () {
     if (remotexy.connectCannel==0) {
       remotexy.connectCannel=*(remotexy.params[0]);
@@ -274,12 +280,10 @@ void CRemoteXY_Init(const void * _conf, void * _var, const char * _accessPasswor
     }
   };
  
-  //override AT
   void closedAT () {
     if (remotexy.connectCannel==*(remotexy.params[0])) remotexy.connectCannel=0;
   }
   
-  //override AT
   void inputDataAT () {
     uint16_t size;
     size=getATParamInt (1);
@@ -307,8 +311,7 @@ void CRemoteXY_Init(const void * _conf, void * _var, const char * _accessPasswor
   
   void sendByte (uint8_t b) {
     if (remotexy.sendBytesAvailable) {
-
-    	HAL_UART_Transmit(&huart3,(uint8_t*)b,1,100);
+      serial.write(b);
 #if defined(REMOTEXY__DEBUGLOGS)
         DEBUGLOGS_writeOutputHex (b);
 #endif
@@ -321,12 +324,12 @@ void CRemoteXY_Init(const void * _conf, void * _var, const char * _accessPasswor
   }
   
   
-  uint8_t receiveByte () {
+  uint8_t receiveByte(void) {
     uint8_t b;
     if (remotexy.connectAvailable) {
-      if (IsDataAvailable(&huart3)) {
+      if (serial.available()>0) {
         remotexy.connectAvailable--;
-        //b = serial->read  ();
+        b = serial.read();
 #if defined(REMOTEXY__DEBUGLOGS)
         DEBUGLOGS_writeInputHex (b);
 #endif
@@ -336,49 +339,75 @@ void CRemoteXY_Init(const void * _conf, void * _var, const char * _accessPasswor
     return 0;
   }
   
-  uint8_t availableByte () {
+  uint8_t availableByte(void) {
     if (remotexy.connectAvailable) {
-      return 1;//serial->available ()>0;
+      return serial.available()>0;
     }
     return 0;
-  }  
+  } 
 
 /**********************************************************************************************************/
   void initAT () {
     remotexy.bufferATPos=0;
   }
 
-  void sendATCommand (const char * command, ...)
-  {
+  void sendATCommand (const char * command, ...) 
+  { 
+   
     char *p = (char*) command;
     va_list argptr;
-
+    while (serial.available() > 0)
+    {
+    	serial.read();
+    }
     va_start (argptr, command);
     while (p) {
-      HAL_UART_Transmit(&huart3,(uint8_t*)p,strlen(p),100);
+     uint8_t Len=strlen(p);
+     for(uint8_t i=0; i<Len;i++){
+    	 serial.write(*p);
+    	 p++;
+     }
 #if defined(REMOTEXY__DEBUGLOGS)
       DEBUGLOGS_writeOutput (p);
 #endif
       p=va_arg(argptr,char*);
     }
     va_end(argptr);     
-    HAL_UART_Transmit(&huart3,(uint8_t*)"\r\n",2,100);
+    serial.write('\r');
+    serial.write('\n');
   }    
   
-  uint8_t waitATAnswer (const char * answer, uint16_t delay)
+  uint8_t waitATAnswer (const char * answer, uint16_t delay) 
   {
+    uint8_t b;
     uint32_t timeOut = HAL_GetTick();
+  
+    uint8_t k=0;
     while (HAL_GetTick() - timeOut <= delay) {
-    	if(Look_for((char*)answer, (char*)_rx_buffer1->buffer) == 1){
-    		remotexy.haveEcho=1;
-    		Uart_flush (&huart3);
-    		return 1;
-    	}
-    	else if(Look_for("\r\nOK\r\n", (char*)_rx_buffer1->buffer) == 1){
-    		remotexy.haveEcho=0;
-    		Uart_flush (&huart3);
-    		return 1;
-    	}
+
+      if (serial.available() > 0) {
+        b=serial.read();
+        if (b==10) continue;
+#if defined(REMOTEXY__DEBUGLOGS)
+        if (b==13) DEBUGLOGS_writeInputNewString ();
+        else DEBUGLOGS_writeInputChar (b);
+#endif
+        if (b==13) {
+          remotexy.bufferAT[k++]=0;
+          remotexy.bufferATPos=0;
+          k=0;
+          if (strcmp (remotexy.bufferAT,answer)==0) return 1;
+          if (strcmp (remotexy.bufferAT,AT_ANSWER_ERROR)==0) return 0;
+          if (cmpBufferAT () ==  AT_MESSAGE_READY) return 0;       
+          if (strcmp (remotexy.bufferAT,AT_MESSAGE_AT)==0) remotexy.haveEcho=1;
+        }
+        else {
+          if (k<AT_BUFFER_STR_LENGTH) remotexy.bufferAT[k++]=b;
+          if (b=='>') {
+            if (answer==AT_ANSWER_GO) return 1;
+          }
+        }
+      }
     } 
     return 0;  
   }
@@ -396,11 +425,11 @@ void CRemoteXY_Init(const void * _conf, void * _var, const char * _accessPasswor
     return (remotexy.haveEcho==0?1:2);
   }
 
-  void readATMessage(void)
+  void readATMessage () 
   {
     uint8_t b;
-    while (IsDataAvailable(&huart3)) {
-      b=_rx_buffer1->buffer[_rx_buffer1->tail];
+    while (serial.available ()>0) {
+      b=serial.read  ();
       if (b==10) continue;
 #if defined(REMOTEXY__DEBUGLOGS)
       if (b==13) DEBUGLOGS_writeInputNewString ();
@@ -478,12 +507,24 @@ void CRemoteXY_Init(const void * _conf, void * _var, const char * _accessPasswor
     return res;
   }
   /**********************************************************************************************************/
-  //HardwareSerial * serial;
   void initSerial (void)
-		  //HardwareSerial * _serial, long _serialSpeed)
-		  {
-    //serial = _serial;
-    //serial->begin (_serialSpeed);
+  {
+	  serial.write = &UartWrite;
+	  serial.read = &UartRead;
+	  serial.available = &UartAvailable;
+  }
+  void UartWrite(uint8_t d)
+  {
+	 Uart_write(d, &huart3);
+  }
+
+  uint8_t UartRead(void)
+  {
+	  return (uint8_t)Uart_read(&huart3);
+  }
+  uint8_t UartAvailable(void)
+  {
+	  return (uint8_t)IsDataAvailable(&huart3);
   }
 /**********************************************************************************************************/
 
@@ -557,7 +598,7 @@ void rxy_getMacAddr (char* s, uint8_t* m)
     
     p = remotexy.var;
     i = varLength;
-    //while (i--) *p++=0;
+    while (i--) *p++=0;
     
     resetWire();
  
@@ -599,14 +640,14 @@ void rxy_getMacAddr (char* s, uint8_t* m)
     
     if (!remotexy.moduleRunning) return;
     
-    handlerModule ();
+    handlerModule();
     
 #if defined(REMOTEXY_CLOUD)  
     handlerCloud ();
 #endif
     
-    while (IsDataAvailable(&huart3)) {
-      b = receiveByte ();  
+    while (availableByte() > 0) {
+      b = receiveByte();
       
       if ((remotexy.receiveIndex==0) && (b!=REMOTEXY_PACKAGE_START_BYTE)) continue;
       remotexy.receiveBuffer[remotexy.receiveIndex++]=b;
@@ -617,8 +658,8 @@ void rxy_getMacAddr (char* s, uint8_t* m)
       while (true) {
         if (remotexy.receiveIndex<6) break;
         packageLength = remotexy.receiveBuffer[1]|(remotexy.receiveBuffer[2]<<8);
-        if (packageLength>remotexy.receiveBufferLength) searchStartByte (1); // error
-        else if (packageLength<6) searchStartByte (1); // error
+        if (packageLength>remotexy.receiveBufferLength) searchStartByte(1); // error
+        else if (packageLength<6) searchStartByte(1); // error
         else if (packageLength==remotexy.receiveIndex) {
           if (remotexy.receiveCRC==0) {
             if (handleReceivePackage ()) {
@@ -627,7 +668,7 @@ void rxy_getMacAddr (char* s, uint8_t* m)
               break;
             }
           }
-          searchStartByte (1); // error 
+          searchStartByte(1); // error
         }
         else if (packageLength<remotexy.receiveIndex) {
           uint16_t crc = initCRC ();

@@ -93,6 +93,7 @@
 #include <stdbool.h>
 #include "stm32f4xx_hal.h"
 
+
 //#define REMOTEXY__DEBUGLOGS Serial
 #define REMOTEXY__DEBUGLOGS_SPEED 115200
 #define REMOTEXY_ESP8266_MAX_SEND_BYTES 2048
@@ -120,8 +121,18 @@
 #define REMOTEXY_WIFI_PASSWORD "12345678"
 #define REMOTEXY_SERVER_PORT 6377
 #define AT_BUFFER_STR_LENGTH 10
+//
+struct {
 
+    // input variables
+  uint8_t button_1; // =1 if button pressed, else =0
+  char edit_1[36];  // string UTF8 end zero
+  char edit_2[11];  // string UTF8 end zero
 
+    // other variable
+  uint8_t connect_flag;  // =1 if wire connected, else =0
+
+} RemoteXY;
 //
 typedef struct CRemoteXY_{
 	  char * wifiSsid;
@@ -163,6 +174,20 @@ typedef struct CRemoteXY_{
 	  uint8_t moduleRunning;
 } CRemoteXY;
 
+
+struct Serial_t;
+typedef struct Serial_t Serial_t;
+
+typedef uint8_t (*ReadFunc)(void);
+typedef void (*WriteFunc)(uint8_t d);
+typedef uint8_t (*AvailableFunc)(void);
+
+struct Serial_t
+{
+	ReadFunc read;
+	WriteFunc write;
+	AvailableFunc available;
+};
 //variables
 
 //
@@ -218,6 +243,10 @@ typedef struct CRemoteXY_{
 	uint16_t getATParamInt(uint8_t k);
 
 	void initSerial(void);
+
+	void UartWrite(uint8_t);
+	  uint8_t UartRead(void);
+	  uint8_t UartAvailable(void);
 
 	char* rxy_itos(uint16_t i, char* s);
 
