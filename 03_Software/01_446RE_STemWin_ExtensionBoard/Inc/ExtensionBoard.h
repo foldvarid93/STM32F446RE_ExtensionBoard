@@ -17,7 +17,7 @@
 #include "UartRingbuffer_multi.h"
 #include "stm32f4xx_hal.h"
 #include <string.h>
-#include "RemoteXY.h"
+#include "remotexy.h"
 /*********************************************************************/
 void BoardInit(void);
 void InitEncoder(void);

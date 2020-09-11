@@ -103,6 +103,9 @@ void Uart_flush (UART_HandleTypeDef *uart)
 	if (uart == device_uart)
 	{
 		_rx_buffer1->head = _rx_buffer1->tail;
+		for (uint8_t i=0; i<UART_BUFFER_SIZE;i++){
+			_rx_buffer1->buffer[i]=0;
+		}
 	}
 	if (uart == pc_uart)
 	{

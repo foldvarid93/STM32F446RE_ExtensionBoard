@@ -86,122 +86,197 @@
      - update input variables on a smartphone;
           
 */
-
-#ifndef _REMOTEXY_H_
-#define _REMOTEXY_H_
+#include <inttypes.h>
+#include <string.h>
+#include <stdarg.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include "stm32f4xx_hal.h"
 
 //#define REMOTEXY__DEBUGLOGS Serial
 #define REMOTEXY__DEBUGLOGS_SPEED 115200
-#define REMOTEXY_MODE__HARDSERIAL_ESP8266_POINT
+#define REMOTEXY_ESP8266_MAX_SEND_BYTES 2048
+#define REMOTEXY_ESP8266_MODULETEST_TIMEOUT 30000
+#define REMOTEXY_PACKAGE_START_BYTE 0x55
+#define REMOTEXY_PASSWORD_LENGTH_MAX 26
+#define REMOTEXY_TIMEOUT 5000
+#define REMOTEXY_SERVER_TIMEOUT 7000
+
+#define REMOTEXY_CLOUD_RETRY_TIMEOUT 500
+#define REMOTEXY_CLOUD_CONNECT_TIMEOUT 10000
+#define REMOTEXY_CLOUD_RECONNECT_TIMEOUT 30000
+#define REMOTEXY_CLOUD_ECHO_TIMEOUT 60000
+#define REMOTEXY_CLOUD_STATE_STOP 0
+#define REMOTEXY_CLOUD_STATE_WAIT_RECONNECT 1
+#define REMOTEXY_CLOUD_STATE_WAIT_NEXT_TRY 2
+#define REMOTEXY_CLOUD_STATE_CONNECTION 3
+#define REMOTEXY_CLOUD_STATE_REGISTRATION 6
+#define REMOTEXY_CLOUD_STATE_WORKING 7
+
+#define REMOTEXY_MODE__ESP8266_HARDSERIAL_POINT
+#define REMOTEXY_SERIAL Serial
+#define REMOTEXY_SERIAL_SPEED 115200
+#define REMOTEXY_WIFI_SSID "RemoteXY"
+#define REMOTEXY_WIFI_PASSWORD "12345678"
+#define REMOTEXY_SERVER_PORT 6377
+#define AT_BUFFER_STR_LENGTH 10
 
 
-#if defined(REMOTEXY_MODE__HARDSERIAL) || defined(REMOTEXY_MODE__SERIAL) || defined(REMOTEXY_MODE__HC05_HARDSERIAL) 
-  #define REMOTEXY_MOD__SERIAL
-  #define REMOTEXY_PORT__HARDSERIAL
-#elif defined(REMOTEXY_MODE__SOFTSERIAL) || defined(REMOTEXY_MODE__SOFTWARESERIAL) || defined(REMOTEXY_MODE__HC05_SOFTSERIAL)
-  #define REMOTEXY_MOD__SERIAL
-  #define REMOTEXY_PORT__SOFTSERIAL
-#elif defined(REMOTEXY_MODE__HARDSERIAL_ESP8266_POINT) || defined(REMOTEXY_MODE__ESP8266_HARDSERIAL_POINT) || defined(REMOTEXY_MODE__ESP8266POINT_HARDSERIAL)
-  #define REMOTEXY_MOD__ESP8266
-  #define REMOTEXY_WIFI__POINT
-  #define REMOTEXY_PORT__HARDSERIAL
-#elif defined(REMOTEXY_MODE__SOFTSERIAL_ESP8266_POINT) || defined(REMOTEXY_MODE__ESP8266_SOFTSERIAL_POINT) || defined(REMOTEXY_MODE__ESP8266POINT_SOFTSERIAL)
-  #define REMOTEXY_MOD__ESP8266
-  #define REMOTEXY_WIFI__POINT
-  #define REMOTEXY_PORT__SOFTSERIAL
-#elif defined(REMOTEXY_MODE__HARDSERIAL_ESP8266) || defined(REMOTEXY_MODE__ESP8266_HARDSERIAL)
-  #define REMOTEXY_MOD__ESP8266
-  #define REMOTEXY_PORT__HARDSERIAL
-#elif defined(REMOTEXY_MODE__SOFTSERIAL_ESP8266) || defined(REMOTEXY_MODE__ESP8266_SOFTSERIAL)
-  #define REMOTEXY_MOD__ESP8266
-  #define REMOTEXY_PORT__SOFTSERIAL
-#elif defined(REMOTEXY_MODE__HARDSERIAL_ESP8266_CLOUD) || defined(REMOTEXY_MODE__ESP8266_HARDSERIAL_CLOUD)
-  #define REMOTEXY_MOD__ESP8266_CLOUD
-  #define REMOTEXY_PORT__HARDSERIAL
-  #define REMOTEXY_CLOUD
-#elif defined(REMOTEXY_MODE__SOFTSERIAL_ESP8266_CLOUD) || defined(REMOTEXY_MODE__ESP8266_SOFTSERIAL_CLOUD)
-  #define REMOTEXY_MOD__ESP8266_CLOUD
-  #define REMOTEXY_PORT__SOFTSERIAL
-  #define REMOTEXY_CLOUD
-#elif defined(REMOTEXY_MODE__ETHERNET) || defined(REMOTEXY_MODE__ETHERNET_LIB) || defined(REMOTEXY_MODE__W5100_SPI)
-  #define REMOTEXY_MOD__ETHERNET
-#elif defined(REMOTEXY_MODE__ETHERNET_CLOUD) || defined(REMOTEXY_MODE__ETHERNET_LIB_CLOUD)
-  #define REMOTEXY_MOD__ETHERNET_CLOUD
-  #define REMOTEXY_CLOUD
-#elif defined(REMOTEXY_MODE__WIFI) || defined(REMOTEXY_MODE__WIFI_LIB)
-  #define REMOTEXY_MOD__WIFI
-#elif defined(REMOTEXY_MODE__ESP8266CORE_ESP8266WIFI_POINT) || defined(REMOTEXY_MODE__ESP8266WIFI_LIB_POINT) || defined(REMOTEXY_MODE__ESP8266WIFIPOINT_LIB) 
-  #define REMOTEXY_MOD__ESPCORE_WIFI
-  #define REMOTEXY_WIFI__POINT
-#elif defined(REMOTEXY_MODE__ESP8266CORE_ESP8266WIFI) || defined(REMOTEXY_MODE__ESP8266WIFI_LIB) 
-  #define REMOTEXY_MOD__ESPCORE_WIFI
-#elif defined(REMOTEXY_MODE__ESP8266CORE_ESP8266WIFI_CLOUD) || defined(REMOTEXY_MODE__ESP8266WIFI_LIB_CLOUD)                
-  #define REMOTEXY_MOD__ESPCORE_WIFI_CLOUD 
-  #define REMOTEXY_CLOUD
-#elif defined(REMOTEXY_MODE__ESP32CORE_WIFI_POINT)  
-  #define REMOTEXY_MOD__ESPCORE_WIFI
-  #define REMOTEXY_WIFI__POINT
-#elif defined(REMOTEXY_MODE__ESP32CORE_WIFI) 
-  #define REMOTEXY_MOD__ESPCORE_WIFI
-#elif defined(REMOTEXY_MODE__ESP32CORE_WIFI_CLOUD)
-  #define REMOTEXY_MOD__ESPCORE_WIFI_CLOUD
-  #define REMOTEXY_CLOUD
-#elif defined(REMOTEXY_MODE__ESP32CORE_BLE)
-  #define REMOTEXY_MOD__ESP32CORE_BLE
-#elif defined(REMOTEXY_MODE__ESP32CORE_BLUETOOTH)
-  #define REMOTEXY_MOD__ESP32CORE_BLUETOOTH
-#else
-  //#error RemoteXY mode does not defined or defined error: REMOTEXY_MODE__XXXXXXX
-#endif
+//
+typedef struct CRemoteXY_{
+	  char * wifiSsid;
+	  char * wifiPassword;
+	  uint16_t port;
+	  char connectCannel;
+	  uint16_t connectAvailable;
+	  uint16_t freeAvailable;
+
+	  uint16_t sendBytesAvailable;
+	  uint16_t sendBytesLater;
+
+	  uint32_t moduleTestTimeout;
+	  //
+	  char bufferAT[AT_BUFFER_STR_LENGTH+1];
+	  uint8_t bufferATPos;
+	  char * params[3];
+	  uint8_t paramsLength[3];
+	  uint8_t haveEcho;
+	  //
+	  uint8_t confVersion;
+	  uint8_t *conf;
+	  uint8_t *var;
+	  uint8_t *accessPassword;
+	  uint16_t outputLength;
+	  uint16_t inputLength;
+	  uint16_t confLength;
+	  uint8_t *connect_flag;
+	  uint8_t inputVarNeedSend;
+
+	  uint8_t *receiveBuffer;
+	  uint16_t receiveBufferLength;
+	  uint16_t receiveIndex;
+	  uint16_t receiveCRC;
 
 
-#include <inttypes.h> 
-#include "RemoteXY_Lib.h"
+	  uint32_t wireTimeOut;
 
-/*
-#if defined(REMOTEXY_PORT__HARDSERIAL) || defined(REMOTEXY__DEBUGLOGS)
-  #include <HardwareSerial.h>
-#endif 
-*/
+	  uint8_t moduleRunning;
+} CRemoteXY;
 
+//variables
 
-#if defined(REMOTEXY_MOD__SERIAL) 
-  #include "modules/serial.h" 
-#elif defined(REMOTEXY_MOD__ESP8266)
-  #include "esp8266.h"
-#elif defined(REMOTEXY_MOD__ESP8266_CLOUD)
-  #include "modules/esp8266_cloud.h" 
-#elif defined(REMOTEXY_MOD__ETHERNET)
-  #include "modules/ethernet.h" 
-#elif defined(REMOTEXY_MOD__ETHERNET_CLOUD)
-  #include "modules/ethernet_cloud.h" 
-#elif defined(REMOTEXY_MOD__WIFI)
-  #include "modules/wifi.h" 
-#elif defined(REMOTEXY_MOD__ESPCORE_WIFI)
-  #include "modules/espcore_wifi.h" 
-#elif defined(REMOTEXY_MOD__ESPCORE_WIFI_CLOUD)
-  #include "modules/espcore_wifi_cloud.h" 
-#elif defined(REMOTEXY_MOD__ESP32CORE_BLE)
-  #include "modules/esp32core_ble.h" 
-#elif defined(REMOTEXY_MOD__ESP32CORE_BLUETOOTH)
-  #include "modules/esp32core_bluetooth.h" 
-#endif 
-
+//
 #ifndef REMOTEXY_ACCESS_PASSWORD 
 #define REMOTEXY_ACCESS_PASSWORD ""
 #endif 
 
-//extern CRemoteXY cremotexy;
+#define RemoteXY_Handler() handler ()
+#define RemoteXY_isConnected() isConnected ()
+#define RemoteXY_sendInputVariables() sendInputVariables ()
+#define RemoteXY_didSendInputVariables() didSendInputVariables ()
+/**********************************************************************************************************/
+	void RemoteXY_Init(void);
 
-//#define RemoteXY_Handler() remotexy->handler ()
-//#define RemoteXY_CONF const PROGMEM RemoteXY_CONF_PROGMEM
+	void CRemoteXY_Init(const void * _conf, void * _var, const char * _accessPassword, const char * _wifiSsid, const char * _wifiPassword, uint16_t _port);
 
-//API
-//#define RemoteXY_isConnected() remotexy->isConnected ()
-//#define RemoteXY_sendInputVariables() remotexy->sendInputVariables ()
-//#define RemoteXY_didSendInputVariables() remotexy->didSendInputVariables ()
+	uint8_t initModule(void);
 
+	uint8_t setModule(void);
 
+	void handlerModule(void);
 
-#endif //_REMOTEXY_H_
+	void readyAT(void);
 
+	void connectAT(void);
+ 
+	void closedAT(void);
+  
+	void inputDataAT(void);
+  
+	void sendStart(uint16_t len);
+  
+	void sendByte(uint8_t b);
+  
+	uint8_t receiveByte();
+  
+	uint8_t availableByte();
+
+	void initAT(void);
+
+	void sendATCommand(const char * command, ...);
+  
+	uint8_t waitATAnswer(const char * answer, uint16_t delay);
+
+	uint8_t testATecho (void);
+
+	void readATMessage(void);
+  
+	const char * cmpBufferAT(void);
+  
+	uint8_t strcmpAT(char * str, const char * temp);
+  
+	uint16_t getATParamInt(uint8_t k);
+
+	void initSerial(void);
+
+	char* rxy_itos(uint16_t i, char* s);
+
+	uint8_t rxy_xctoi(char c);
+
+	void rxy_getMacAddr(char* s, uint8_t* m);
+
+	void init(const void * _conf, void * _var, const char * _accessPassword);
+
+	uint8_t getConfByte (uint8_t* p);
+  
+	void resetWire(void);
+  
+	void handler(void);
+
+	uint16_t initCRC(void);
+    
+	void updateCRC(uint16_t *crc, uint8_t b);
+  
+	void sendByteUpdateCRC(uint8_t b, uint16_t *crc);
+
+	void sendPackage(uint8_t command, uint8_t *p, uint16_t length, uint8_t itConf);
+  
+	void searchStartByte (uint16_t pos);
+  
+	uint8_t handleReceivePackage(void);
+  
+	uint8_t isConnected(void);
+
+	void sendInputVariables(void);
+
+	uint8_t didSendInputVariables(void);
+
+	void initCloud(const char * _cloudServer, uint16_t _cloudPort, const char * _cloudToken);
+  
+	void startCloudConnection(void);
+
+	void stopCloud(void);
+
+	void setCloudState(uint8_t state);
+
+	void handlerCloud(void);
+  
+	void DEBUGLOGS_init(void);
+
+	void DEBUGLOGS_writeTime(void);
+  
+	void DEBUGLOGS_write(const char *s);
+  
+	void DEBUGLOGS_writeInput(char *s);
+
+	void DEBUGLOGS_writeOutput(char *s);
+
+	void DEBUGLOGS_writeInputHex(uint8_t b);
+
+	void DEBUGLOGS_writeOutputHex(uint8_t b);
+  
+	void DEBUGLOGS_writeInputChar(char s);
+
+	void DEBUGLOGS_writeInputNewString(void);
+
+	void DEBUGLOGS_writeHex(uint8_t b);

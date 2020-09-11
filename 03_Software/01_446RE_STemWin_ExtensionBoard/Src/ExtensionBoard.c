@@ -10,6 +10,17 @@
 /*********************************************************************/
 MPU6050 mpu1;
 uint8_t u;
+struct {
+
+    // input variables
+  uint8_t button_1; // =1 if button pressed, else =0
+  char edit_1[36];  // string UTF8 end zero
+  char edit_2[11];  // string UTF8 end zero
+
+    // other variable
+  uint8_t connect_flag;  // =1 if wire connected, else =0
+
+} RemoteXY;
 /*********************************************************************/
 //board initialization
 /*********************************************************************/
@@ -43,12 +54,21 @@ void BoardInit(void){
 	MX_USART3_UART_Init();//ESP8266UART
 	//init esp8266
 	HAL_GPIO_WritePin(RST_GPIO_Port, RST_Pin, GPIO_PIN_SET);
-	ESP_Init("foldvarid93","19701971");
-	Server_Start();
+	//ESP_Init("foldvarid93","19701971");
+	//Server_Start();
 	//
+	Ringbuf_init();
 	RemoteXY_Init();
+	HAL_Delay(1);
 	while(1){
-		//RemoteXY_Handler();
+		RemoteXY_Handler();
+		if(RemoteXY.button_1==1){
+			Uart_sendstring(strcat(RemoteXY.edit_1,"\n"), &huart2);
+		    //Serial.printf("SSID=%s",strcat(RemoteXY.edit_1,"\n"));
+		    //Serial.printf("PW=%s",strcat(RemoteXY.edit_2,"\n"));
+
+		    RemoteXY.button_1=0;
+		}
 	}
 }
 /*********************************************************************/
