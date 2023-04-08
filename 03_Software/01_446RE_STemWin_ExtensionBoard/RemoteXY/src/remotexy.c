@@ -130,6 +130,7 @@ const char * AT_MESSAGE_CONNECT_FAIL = "?,CONNECT FAIL";
 const char * AT_MESSAGE_IPD = "+IPD,?,*:";
 //variables
 CRemoteXY remotexy;
+RemoteXY_t	RemoteXY;
 
 Serial_t serial={
 		.read=NULL,

@@ -1,12 +1,13 @@
 /*********************************************************************/
 #include "ExtensionBoard.h"
 /*********************************************************************/
-//Author: Dávid Földvári
+//Author: Dï¿½vid Fï¿½ldvï¿½ri
 //github: foldvarid93
 //Version: 1.0
 //HW Version: 1.0
 /*********************************************************************/
 //global variables
+extern RemoteXY_t	RemoteXY;
 /*********************************************************************/
 MPU6050 mpu1;
 uint8_t u;
@@ -46,11 +47,13 @@ void BoardInit(void){
 	//ESP_Init("foldvarid93","19701971");
 	//Server_Start();
 	//
-	Ringbuf_init();
-	RemoteXY_Init();
+	//Ringbuf_init();
+	//RemoteXY_Init();
 	HAL_Delay(1);
 	while(1){
-		RemoteXY_Handler();
+		MainTask();
+	}
+/*		RemoteXY_Handler();
 		if(RemoteXY.button_1==1){
 			Uart_sendstring("SSID: ", &huart2);
 			Uart_sendstring(strcat(RemoteXY.edit_1,"\n"), &huart2);
@@ -58,7 +61,7 @@ void BoardInit(void){
 			Uart_sendstring(strcat(RemoteXY.edit_2,"\n"), &huart2);
 		    RemoteXY.button_1=0;
 		}
-	}
+	}*/
 }
 /*********************************************************************/
 //Timer
@@ -172,7 +175,7 @@ float ReadLM75(void){
 	else{//positive temperature
 		Array[5]='+';
 	}
-	if(data[0]/100){//if greater than 100°C
+	if(data[0]/100){//if greater than 100ï¿½C
 		Array[6]=(data[0]/100)+'0';//hundreds
 	}
 	else{
@@ -183,7 +186,7 @@ float ReadLM75(void){
 	data[0]%=10;//modulo10
 	Array[8]=(data[0])+'0';//singles
 	Array[9]=',';//comma
-	if(data[1]&0x80){//if there is ,5°C at the end
+	if(data[1]&0x80){//if there is ,5ï¿½C at the end
 		Array[10]='5';
 	}
 	else{

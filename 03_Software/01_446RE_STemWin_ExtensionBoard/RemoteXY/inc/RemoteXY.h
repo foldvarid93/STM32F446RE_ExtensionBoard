@@ -122,7 +122,7 @@
 #define REMOTEXY_SERVER_PORT 6377
 #define AT_BUFFER_STR_LENGTH 10
 //
-struct {
+typedef struct RemoteXY_t{
 
     // input variables
   uint8_t button_1; // =1 if button pressed, else =0
@@ -132,7 +132,7 @@ struct {
     // other variable
   uint8_t connect_flag;  // =1 if wire connected, else =0
 
-} RemoteXY;
+} RemoteXY_t;
 //
 typedef struct CRemoteXY_{
 	  char * wifiSsid;
