@@ -51,7 +51,7 @@ Purpose     : Display controller configuration (single layer)
   ******************************************************************************
   */
 
-#include "LCDConf.h"
+#include <LCDConf.h>
 #include "GUI.h"
 #include "stm32f4xx.h"
 #include "GUIDRV_Template.h"

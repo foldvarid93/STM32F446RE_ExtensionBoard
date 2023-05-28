@@ -4,9 +4,10 @@
  *  Created on: 2019. aug. 26.
  *      Author: David
  */
+#include <ExtensionBoard.h>
 #include "DIALOG.h"
 #include <stdio.h>
-#include "ExtensionBoard.h"
+
 /*********************************************************************
 *
 *       Externals
@@ -182,10 +183,10 @@ void MainTask(void) {
 	}
 	//Write to string
 	sprintf(str,
-			"LM75 Temp=%.1f °C\r\n"
-			"BME280: Temp=%.2f °C, Humidity=%.2f, Pressure=%.2f\r\n"
+			"LM75 Temp=%.1f ï¿½C\r\n"
+			"BME280: Temp=%.2f ï¿½C, Humidity=%.2f, Pressure=%.2f\r\n"
 			"MPU6050 Accelerometer: X=%d, Y=%d, Z=%d\r\n"
-			"MPU6050 Temp=%.2f °C\r\n"
+			"MPU6050 Temp=%.2f ï¿½C\r\n"
 			"MPU6050 Gyroscope: X=%d, Y=%d, Z=%d\r\n"
 			"TEMT6000 LightSensor ADC=%u\r\n"
 			,LM75Temp

@@ -47,7 +47,7 @@
   ******************************************************************************
   */
 /* Includes ------------------------------------------------------------------*/
-#include "ExtensionBoard.h"
+#include <ExtensionBoard.h>
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
 

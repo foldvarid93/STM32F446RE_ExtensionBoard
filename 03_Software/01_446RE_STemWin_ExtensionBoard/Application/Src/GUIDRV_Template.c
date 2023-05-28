@@ -47,12 +47,13 @@ Purpose     : Template driver, could be used as starting point for new
   ******************************************************************************
   */
 
+#include <LCDConf.h>
 #include <stddef.h>
 
 #include "LCD_Private.h"
 #include "GUI_Private.h"
 #include "LCD_ConfDefaults.h"
-#include "LCDConf.h"
+
 
 /*********************************************************************
 *
