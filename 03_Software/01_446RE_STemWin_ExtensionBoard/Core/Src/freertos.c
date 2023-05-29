@@ -25,7 +25,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "ExtensionBoard.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -191,9 +191,11 @@ void MainTask_Func(void const * argument)
 void GUI_Task_Function(void const * argument)
 {
   /* USER CODE BEGIN GUI_Task_Function */
+	BoardInit();
   /* Infinite loop */
   for(;;)
   {
+	  MainTask();
     osDelay(1);
   }
   /* USER CODE END GUI_Task_Function */
