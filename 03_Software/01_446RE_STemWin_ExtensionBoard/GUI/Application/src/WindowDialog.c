@@ -178,9 +178,9 @@ void MainTask(void) {
 	//On chip temp sensor
 	//TODO
 	//TEMT6000 LightSensor
-	if (HAL_ADC_PollForConversion(&hadc1, 1000000) == HAL_OK){//analog read
-		TEMT6000 = HAL_ADC_GetValue(&hadc1);
-	}
+	//if (HAL_ADC_PollForConversion(&hadc1, 1000000) == HAL_OK){//analog read
+	//	TEMT6000 = HAL_ADC_GetValue(&hadc1);
+	//}
 	//Write to string
 	sprintf(str,
 			"LM75 Temp=%.1f �C\r\n"

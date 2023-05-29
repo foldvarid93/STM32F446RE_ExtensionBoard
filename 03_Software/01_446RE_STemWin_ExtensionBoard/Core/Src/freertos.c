@@ -196,7 +196,7 @@ void GUI_Task_Function(void const * argument)
   for(;;)
   {
 	  MainTask();
-    osDelay(1);
+    osDelay(80);
   }
   /* USER CODE END GUI_Task_Function */
 }

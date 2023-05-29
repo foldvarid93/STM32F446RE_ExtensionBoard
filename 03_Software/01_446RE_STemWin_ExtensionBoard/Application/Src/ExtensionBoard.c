@@ -49,10 +49,6 @@ void BoardInit(void){
 	//
 	//Ringbuf_init();
 	//RemoteXY_Init();
-	HAL_Delay(1);
-	while(1){
-		MainTask();
-	}
 /*		RemoteXY_Handler();
 		if(RemoteXY.button_1==1){
 			Uart_sendstring("SSID: ", &huart2);

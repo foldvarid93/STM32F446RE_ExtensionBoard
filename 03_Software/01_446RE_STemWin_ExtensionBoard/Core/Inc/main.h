@@ -65,8 +65,8 @@ void Error_Handler(void);
 #define INT_PE_Pin GPIO_PIN_0
 #define INT_PE_GPIO_Port GPIOA
 #define INT_PE_EXTI_IRQn EXTI0_IRQn
-#define HB_PWM_Pin_Pin GPIO_PIN_1
-#define HB_PWM_Pin_GPIO_Port GPIOA
+#define HB_PWM_Pin GPIO_PIN_1
+#define HB_PWM_GPIO_Port GPIOA
 #define USART_TX_Pin GPIO_PIN_2
 #define USART_TX_GPIO_Port GPIOA
 #define USART_RX_Pin GPIO_PIN_3
