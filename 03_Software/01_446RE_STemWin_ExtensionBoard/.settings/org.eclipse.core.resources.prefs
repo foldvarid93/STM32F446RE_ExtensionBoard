@@ -1,4 +1,3 @@
 eclipse.preferences.version=1
-encoding//Application/Src/LCDConf.c=UTF-8
-encoding//Application/Src/S6D04D1.c=UTF-8
-encoding//Application/Src/main.c=UTF-8
+encoding//Application_old/Src/main.c=UTF-8
+encoding//GUI/Application/src/S6D04D1.c=UTF-8
